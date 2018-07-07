@@ -33,9 +33,13 @@ class ShazamEntry {
         var imageUrl = (string)root["images"]?["default"];
 
         if(!String.IsNullOrEmpty(imageUrl)) {
-            imageUrl = Regex.Replace(imageUrl, @"_s\d+\.jpg$", "_s0.jpg");
             using(var web = new WebClient()) {
-                result.Artwork = web.DownloadData(imageUrl);
+                try {
+                    var noResizeUrl = Regex.Replace(imageUrl, @"_s\d+\.jpg$", "_s0.jpg");
+                    result.Artwork = web.DownloadData(noResizeUrl);
+                } catch(WebException) {
+                    result.Artwork = web.DownloadData(imageUrl);
+                }
             }
         }
 
