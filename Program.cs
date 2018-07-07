@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 class Program {
 
@@ -48,6 +49,15 @@ class Program {
             id3.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", url));
 
             file.Save();
+        }
+
+        if(Regex.IsMatch(Path.GetFileNameWithoutExtension(mp3Path), "^[0-9a-f]+$")) {
+            var betterName = entry.Artist + " - " + entry.Title;
+            betterName = Regex.Replace(betterName, @"[^\p{L}\p{N} (.,&')]+", "-").Trim('-');
+            File.Move(mp3Path, Path.Combine(
+                Path.GetDirectoryName(mp3Path),
+                betterName + ".mp3"
+            ));
         }
     }
 
