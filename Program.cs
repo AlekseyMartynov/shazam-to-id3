@@ -28,7 +28,8 @@ class Program {
                     new TagLib.Id3v2.AttachedPictureFrame {
                         MimeType = "image/jpeg",
                         Type = TagLib.PictureType.FrontCover,
-                        Data = entry.Artwork
+                        Data = entry.Artwork,
+                        TextEncoding = TagLib.StringType.Latin1
                     }
                 };
             }
