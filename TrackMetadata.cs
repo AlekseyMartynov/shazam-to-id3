@@ -7,6 +7,7 @@ class TrackMetadata {
     public string Label;
     public uint? Year;
     public string Genre;
+    public uint TrackNumber;
     public byte[] Artwork;
     public string ArtworkMime = "image/jpeg";
     public string SourceUrl;

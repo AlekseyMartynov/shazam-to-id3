@@ -6,6 +6,7 @@ class Program {
 
     static void Main(string[] args) {
         // args = new[] { "c:/temp/test.mp3", "shazam:379653703" };
+        // args = new[] { "c:/temp/test.mp3", "spotify:track:3gAvyxokyDwmBzUPyl741m" };
 
         var mp3Path = args[0];
         var meta = ReadMetadata();
@@ -16,6 +17,10 @@ class Program {
             const string shazamPrefix = "shazam:";
             if(metaSource.StartsWith(shazamPrefix))
                 return ShazamReader.FromID(metaSource.Substring(shazamPrefix.Length));
+
+            const string spotifyPrefix = "spotify:track:";
+            if(metaSource.StartsWith(spotifyPrefix))
+                return SpotifyReader.Read(metaSource.Substring(spotifyPrefix.Length));
 
             throw new NotSupportedException();
         }
@@ -53,6 +58,9 @@ class Program {
 
             if(!String.IsNullOrEmpty(meta.Genre))
                 id3.Genres = new[] { meta.Genre };
+
+            if(meta.TrackNumber > 0)
+                id3.Track = meta.TrackNumber;
 
             if(!String.IsNullOrEmpty(meta.SourceUrl)) {
                 var url = new TagLib.ByteVector { 0, "Metadata Source", 0, meta.SourceUrl };
