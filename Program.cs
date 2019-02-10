@@ -5,12 +5,20 @@ using System.Text.RegularExpressions;
 class Program {
 
     static void Main(string[] args) {
-        // args = new[] { "c:/temp/test.mp3", "379653703" };
+        // args = new[] { "c:/temp/test.mp3", "shazam:379653703" };
 
         var mp3Path = args[0];
-        var shid = args[1];
+        var meta = ReadMetadata();
 
-        var meta = ShazamReader.FromID(shid);
+        TrackMetadata ReadMetadata() {
+            var metaSource = args[1];
+
+            const string shazamPrefix = "shazam:";
+            if(metaSource.StartsWith(shazamPrefix))
+                return ShazamReader.FromID(metaSource.Substring(shazamPrefix.Length));
+
+            throw new NotSupportedException();
+        }
 
         File.Copy(mp3Path, mp3Path + ".bak");
 
