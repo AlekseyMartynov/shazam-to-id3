@@ -10,7 +10,7 @@ class Program {
         var mp3Path = args[0];
         var shid = args[1];
 
-        var entry = ShazamEntry.FromID(shid);
+        var meta = ShazamReader.FromID(shid);
 
         File.Copy(mp3Path, mp3Path + ".bak");
 
@@ -20,31 +20,31 @@ class Program {
             var id3 = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
             id3.Clear();
 
-            id3.Title = entry.Title;
-            id3.Performers = entry.Artists;
+            id3.Title = meta.Title;
+            id3.Performers = meta.Artists;
 
-            if(entry.Artwork != null) {
+            if(meta.Artwork != null) {
                 id3.Pictures = new[] {
                     new TagLib.Id3v2.AttachedPictureFrame {
-                        MimeType = entry.ArtworkMime,
+                        MimeType = meta.ArtworkMime,
                         Type = TagLib.PictureType.FrontCover,
-                        Data = entry.Artwork,
+                        Data = meta.Artwork,
                         TextEncoding = TagLib.StringType.Latin1
                     }
                 };
             }
 
-            if(!String.IsNullOrEmpty(entry.Album))
-                id3.Album = entry.Album;
+            if(!String.IsNullOrEmpty(meta.Album))
+                id3.Album = meta.Album;
 
-            if(!String.IsNullOrEmpty(entry.Label))
-                id3.SetTextFrame("TPUB", entry.Label);
+            if(!String.IsNullOrEmpty(meta.Label))
+                id3.SetTextFrame("TPUB", meta.Label);
 
-            if(entry.Year.HasValue)
-                id3.Year = entry.Year.Value;
+            if(meta.Year.HasValue)
+                id3.Year = meta.Year.Value;
 
-            if(!String.IsNullOrEmpty(entry.Genre))
-                id3.Genres = new[] { entry.Genre };
+            if(!String.IsNullOrEmpty(meta.Genre))
+                id3.Genres = new[] { meta.Genre };
 
             var url = new TagLib.ByteVector { 0, "Shazam", 0, "https://shz.am/t" + shid };
             id3.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", url));
@@ -53,7 +53,7 @@ class Program {
         }
 
         if(Regex.IsMatch(Path.GetFileNameWithoutExtension(mp3Path), "^[0-9a-f]+$")) {
-            var betterName = entry.Artists[0] + " - " + entry.Title;
+            var betterName = meta.Artists[0] + " - " + meta.Title;
             betterName = Regex.Replace(betterName, @"[^\p{L}\p{N} (.,&')]+", "-").Trim('-');
             File.Move(mp3Path, Path.Combine(
                 Path.GetDirectoryName(mp3Path),

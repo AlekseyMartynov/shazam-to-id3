@@ -4,7 +4,7 @@ using System;
 using System.Net;
 using System.Text.RegularExpressions;
 
-class ShazamEntry {
+class ShazamReader {
 
     public static TrackMetadata FromID(string id) {
         var url = "https://www.shazam.com/discovery/v4/-/-/web/-/track/" + id;
