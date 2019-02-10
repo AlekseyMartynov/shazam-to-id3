@@ -70,14 +70,12 @@ class Program {
             file.Save();
         }
 
-        if(Regex.IsMatch(Path.GetFileNameWithoutExtension(mp3Path), "^[0-9a-f]+$")) {
-            var betterName = meta.Artists[0] + " - " + meta.Title;
-            betterName = Regex.Replace(betterName, @"[^\p{L}\p{N} (.,&')]+", "-").Trim('-');
-            File.Move(mp3Path, Path.Combine(
-                Path.GetDirectoryName(mp3Path),
-                betterName + ".mp3"
-            ));
-        }
+        var betterName = meta.Artists[0] + " - " + meta.Title;
+        betterName = Regex.Replace(betterName, @"[^\p{L}\p{N} (.,&')]+", "-").Trim('-');
+        File.Move(mp3Path, Path.Combine(
+            Path.GetDirectoryName(mp3Path),
+            betterName + ".mp3"
+        ));
     }
 
 }
