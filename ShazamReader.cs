@@ -9,7 +9,9 @@ class ShazamReader {
     public static TrackMetadata FromID(string id) {
         var url = "https://www.shazam.com/discovery/v4/-/-/web/-/track/" + id;
         using(var web = new WebClient()) {
-            return FromJson(web.DownloadString(url));
+            var meta = FromJson(web.DownloadString(url));
+            meta.SourceUrl = "https://shz.am/t" + id;
+            return meta;
         }
     }
 

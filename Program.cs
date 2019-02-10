@@ -46,8 +46,10 @@ class Program {
             if(!String.IsNullOrEmpty(meta.Genre))
                 id3.Genres = new[] { meta.Genre };
 
-            var url = new TagLib.ByteVector { 0, "Shazam", 0, "https://shz.am/t" + shid };
-            id3.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", url));
+            if(!String.IsNullOrEmpty(meta.SourceUrl)) {
+                var url = new TagLib.ByteVector { 0, "Metadata Source", 0, meta.SourceUrl };
+                id3.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", url));
+            }
 
             file.Save();
         }

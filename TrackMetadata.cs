@@ -9,4 +9,5 @@ class TrackMetadata {
     public string Genre;
     public byte[] Artwork;
     public string ArtworkMime = "image/jpeg";
+    public string SourceUrl;
 }
