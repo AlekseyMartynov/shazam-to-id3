@@ -5,29 +5,22 @@ using System.Net;
 using System.Text.RegularExpressions;
 
 class ShazamEntry {
-    public string Title;
-    public string Artist;
-    public byte[] Artwork;
-    public string Album;
-    public string Label;
-    public uint? Year;
-    public string Genre;
 
-    public static ShazamEntry FromID(string id) {
+    public static TrackMetadata FromID(string id) {
         var url = "https://www.shazam.com/discovery/v4/-/-/web/-/track/" + id;
         using(var web = new WebClient()) {
             return FromJson(web.DownloadString(url));
         }
     }
 
-    public static ShazamEntry FromJson(string json) {
+    public static TrackMetadata FromJson(string json) {
         var root = JsonConvert.DeserializeObject<JObject>(json);
         var heading = root["heading"];
         var footnotes = (JArray)root["footnotes"];
 
-        var result = new ShazamEntry {
+        var result = new TrackMetadata {
             Title = (string)heading["title"],
-            Artist = (string)heading["subtitle"]
+            Artists = new[] { (string)heading["subtitle"] }
         };
 
         var imageUrl = (string)root["images"]?["default"];

@@ -21,12 +21,12 @@ class Program {
             id3.Clear();
 
             id3.Title = entry.Title;
-            id3.Performers = new[] { entry.Artist };
+            id3.Performers = entry.Artists;
 
             if(entry.Artwork != null) {
                 id3.Pictures = new[] {
                     new TagLib.Id3v2.AttachedPictureFrame {
-                        MimeType = "image/jpeg",
+                        MimeType = entry.ArtworkMime,
                         Type = TagLib.PictureType.FrontCover,
                         Data = entry.Artwork,
                         TextEncoding = TagLib.StringType.Latin1
@@ -53,7 +53,7 @@ class Program {
         }
 
         if(Regex.IsMatch(Path.GetFileNameWithoutExtension(mp3Path), "^[0-9a-f]+$")) {
-            var betterName = entry.Artist + " - " + entry.Title;
+            var betterName = entry.Artists[0] + " - " + entry.Title;
             betterName = Regex.Replace(betterName, @"[^\p{L}\p{N} (.,&')]+", "-").Trim('-');
             File.Move(mp3Path, Path.Combine(
                 Path.GetDirectoryName(mp3Path),
