@@ -23,7 +23,7 @@ class SpotifyReader {
 
             var result = new TrackMetadata {
                 Title = (string)jObj["name"],
-                Artists = jObj["artists"].Select(a => (string)a["name"]).ToArray(),
+                Artists = jObj["artists"].Select(a => (string)a["name"]).Where(a => a != "Various Artists").ToArray(),
                 Album = (string)jAlbum["name"],
                 TrackNumber = (uint)jObj["track_number"],
                 Year = UInt32.Parse(((string)jAlbum["release_date"]).Substring(0, 4)),
