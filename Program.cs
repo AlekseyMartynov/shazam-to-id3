@@ -27,14 +27,30 @@ class Program {
 
         File.Copy(audioFilePath, audioFilePath + ".bak");
 
+        void AssignStandardProps(TagLib.Tag tag) {
+            tag.Title = meta.Title;
+            tag.Performers = meta.Artists;
+
+            if(!String.IsNullOrEmpty(meta.Album))
+                tag.Album = meta.Album;
+
+            if(meta.Year.HasValue)
+                tag.Year = meta.Year.Value;
+
+            if(!String.IsNullOrEmpty(meta.Genre))
+                tag.Genres = new[] { meta.Genre };
+
+            if(meta.TrackNumber > 0)
+                tag.Track = meta.TrackNumber;
+        }
+
         using(var file = TagLib.File.Create(audioFilePath)) {
             file.RemoveTags(TagLib.TagTypes.AllTags & ~TagLib.TagTypes.Id3v2);
 
             var tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
             tag.Clear();
 
-            tag.Title = meta.Title;
-            tag.Performers = meta.Artists;
+            AssignStandardProps(tag);
 
             if(meta.Artwork != null) {
                 tag.Pictures = new[] {
@@ -47,20 +63,8 @@ class Program {
                 };
             }
 
-            if(!String.IsNullOrEmpty(meta.Album))
-                tag.Album = meta.Album;
-
             if(!String.IsNullOrEmpty(meta.Label))
                 tag.SetTextFrame("TPUB", meta.Label);
-
-            if(meta.Year.HasValue)
-                tag.Year = meta.Year.Value;
-
-            if(!String.IsNullOrEmpty(meta.Genre))
-                tag.Genres = new[] { meta.Genre };
-
-            if(meta.TrackNumber > 0)
-                tag.Track = meta.TrackNumber;
 
             if(!String.IsNullOrEmpty(meta.SourceUrl)) {
                 var url = new TagLib.ByteVector { 0, "Metadata Source", 0, meta.SourceUrl };
