@@ -44,31 +44,68 @@ class Program {
                 tag.Track = meta.TrackNumber;
         }
 
-        using(var file = TagLib.File.Create(audioFilePath)) {
-            file.RemoveTags(TagLib.TagTypes.AllTags & ~TagLib.TagTypes.Id3v2);
+        TagLib.IPicture CreatePicture() => new TagLib.Picture {
+            Type = TagLib.PictureType.FrontCover,
+            MimeType = meta.ArtworkMime,
+            Data = meta.Artwork
+        };
 
-            var tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
-            tag.Clear();
-
-            AssignStandardProps(tag);
+        void AssignID3(TagLib.Id3v2.Tag id3) {
+            AssignStandardProps(id3);
 
             if(meta.Artwork != null) {
-                tag.Pictures = new[] {
-                    new TagLib.Id3v2.AttachedPictureFrame {
-                        MimeType = meta.ArtworkMime,
-                        Type = TagLib.PictureType.FrontCover,
-                        Data = meta.Artwork,
+                id3.Pictures = new[] {
+                    new TagLib.Id3v2.AttachedPictureFrame(CreatePicture()) {
                         TextEncoding = TagLib.StringType.Latin1
                     }
                 };
             }
 
             if(!String.IsNullOrEmpty(meta.Label))
-                tag.SetTextFrame("TPUB", meta.Label);
+                id3.SetTextFrame("TPUB", meta.Label);
 
-            if(!String.IsNullOrEmpty(meta.SourceUrl)) {
-                var url = new TagLib.ByteVector { 0, "Metadata Source", 0, meta.SourceUrl };
-                tag.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", url));
+            var sourceUrl = new TagLib.ByteVector { 0, "Metadata Source", 0, meta.SourceUrl };
+            id3.AddFrame(new TagLib.Id3v2.UnknownFrame("WXXX", sourceUrl));
+        }
+
+        void AssignFlac(TagLib.Flac.Metadata flac) {
+            var xiph = flac.GetComment(true, null);
+
+            AssignStandardProps(xiph);
+
+            if(meta.Artwork != null)
+                flac.Pictures = new[] { CreatePicture() };
+
+            if(!String.IsNullOrEmpty(meta.Label))
+                xiph.SetField("ORGANIZATION", meta.Label);
+
+            xiph.SetField("Metadata Source", meta.SourceUrl);
+        }
+
+        TagLib.TagTypes GetTagType(TagLib.File file) {
+            switch(file.MimeType) {
+                case "taglib/mp3":
+                    return TagLib.TagTypes.Id3v2;
+                case "taglib/flac":
+                    return TagLib.TagTypes.FlacMetadata;
+            }
+            throw new NotSupportedException();
+        }
+
+        using(var file = TagLib.File.Create(audioFilePath)) {
+            var tagType = GetTagType(file);
+            file.RemoveTags(TagLib.TagTypes.AllTags & ~tagType);
+
+            var tag = file.GetTag(tagType);
+            tag.Clear();
+
+            switch(tag) {
+                case TagLib.Id3v2.Tag id3:
+                    AssignID3(id3);
+                    break;
+                case TagLib.Flac.Metadata flac:
+                    AssignFlac(flac);
+                    break;
             }
 
             file.Save();
