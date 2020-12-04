@@ -39,7 +39,7 @@ class SpotifyHtmlReader {
         if(!m.Success)
             return null;
 
-        return m.Groups[1].Value;
+        return WebUtility.HtmlDecode(m.Groups[1].Value);
     }
 
 }
