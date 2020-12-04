@@ -20,7 +20,7 @@ class Program {
 
             const string spotifyPrefix = "spotify:track:";
             if(metaSource.StartsWith(spotifyPrefix))
-                return SpotifyReader.Read(metaSource.Substring(spotifyPrefix.Length));
+                return SpotifyHtmlReader.Read(metaSource.Substring(spotifyPrefix.Length));
 
             throw new NotSupportedException();
         }
